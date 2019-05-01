@@ -13,11 +13,11 @@ class MyApp extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return MaterialApp(
-      title: 'Flutter Demo',
+      title: 'とけい',
       theme: ThemeData(
         primarySwatch: Colors.blue,
       ),
-      home: const MyHomePage(title: 'Flutter Demo Home Page'),
+      home: const MyHomePage(title: 'とけい'),
     );
   }
 }
@@ -31,7 +31,8 @@ class MyHomePage extends StatefulWidget {
   _MyHomePageState createState() => _MyHomePageState();
 }
 
-class _MyHomePageState extends State<MyHomePage> {
+class _MyHomePageState extends State<MyHomePage>
+    with SingleTickerProviderStateMixin {
   final Random _rand = Random();
   TimeOfDay _time = TimeOfDay.now();
   final List<int> _hours = List<int>.generate(12, (int i) => i + 1);
@@ -74,102 +75,107 @@ class _MyHomePageState extends State<MyHomePage> {
               ),
             ),
           ),
-          DropdownButtonHideUnderline(
-            child: Container(
-              padding: const EdgeInsets.all(16.0),
-              child: InputDecorator(
-                decoration: const InputDecoration(
-                  labelText: 'なんじ？',
-                  contentPadding: EdgeInsets.zero,
-                ),
-                child: DropdownButton<int>(
-                  value: _hour,
-                  onChanged: (int newValue) {
-                    setState(() {
-                      _hour = newValue;
-                    });
-                  },
-                  items: _hours.map<DropdownMenuItem<int>>((int value) {
-                    return DropdownMenuItem<int>(
-                      value: value,
-                      child: Text('$valueじ'),
-                    );
-                  }).toList(),
+          Column(
+            children: <Widget>[
+              DropdownButtonHideUnderline(
+                child: Container(
+                  padding: const EdgeInsets.all(16.0),
+                  child: InputDecorator(
+                    decoration: const InputDecoration(
+                      labelText: 'なんじ？',
+                      contentPadding: EdgeInsets.zero,
+                    ),
+                    child: DropdownButton<int>(
+                      value: _hour,
+                      onChanged: (int newValue) {
+                        setState(() {
+                          _hour = newValue;
+                        });
+                      },
+                      items: _hours.map<DropdownMenuItem<int>>((int value) {
+                        return DropdownMenuItem<int>(
+                          value: value,
+                          child: Text('$valueじ'),
+                        );
+                      }).toList(),
+                    ),
+                  ),
                 ),
               ),
-            ),
-          ),
-          Container(
-              padding: const EdgeInsets.all(16.0),
-              child: Column(
-                children: <Widget>[
-                  Row(
-                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
+              Container(
+                  padding: const EdgeInsets.all(16.0),
+                  child: Column(
                     children: <Widget>[
-                      Text(
-                        'なんぷん？',
-                        style: TextStyle(color: Colors.grey[500], fontSize: 13),
-                      ),
-                      Text(
-                        '$_minuteふん',
-                        style: TextStyle(color: Colors.black, fontSize: 13),
-                      ),
-                    ],
-                  ),
-                ],
-              )),
-          Slider(
-            value: _minute.toDouble(),
-            min: 0,
-            max: 59,
-            divisions: 60,
-            label: '$_minuteふん',
-            onChanged: (double value) {
-              setState(() {
-                _minute = value.toInt();
-              });
-            },
-          ),
-          const SizedBox(height: 8.0),
-          RaisedButton(
-            child: const Text('これでいい'),
-            onPressed: () {
-              final bool isCorrect =
-                  _hour == _time.hour && _minute == _time.minute;
-              print(isCorrect);
-
-              showDialog<_DialogAction>(
-                context: context,
-                builder: (BuildContext context) {
-                  return AlertDialog(
-                    content: Text(
-                      isCorrect ? 'せいかい！！' : 'おしい！',
-                    ),
-                    actions: <Widget>[
-                      FlatButton(
-                        child: Text(isCorrect ? 'つぎのもんだい' : 'もういちどこたえる'),
-                        onPressed: () {
-                          Navigator.pop(
-                            context,
-                            isCorrect
-                                ? _DialogAction.next
-                                : _DialogAction.retry,
-                          );
-                        },
+                      Row(
+                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                        children: <Widget>[
+                          Text(
+                            'なんぷん？',
+                            style: TextStyle(
+                                color: Colors.grey[500], fontSize: 13),
+                          ),
+                          Text(
+                            '$_minuteふん',
+                            style: TextStyle(color: Colors.black, fontSize: 13),
+                          ),
+                        ],
                       ),
                     ],
-                  );
+                  )),
+              Slider(
+                value: _minute.toDouble(),
+                min: 0,
+                max: 59,
+                divisions: 60,
+                label: '$_minuteふん',
+                onChanged: (double value) {
+                  setState(() {
+                    _minute = value.toInt();
+                  });
                 },
-              ).then<void>((_DialogAction value) {
-                switch (value) {
-                  case _DialogAction.next:
-                    _refresh();
-                    break;
-                  case _DialogAction.retry:
-                    break;
-                }
-              });
-            },
+              ),
+              const SizedBox(height: 8.0),
+              RaisedButton(
+                child: const Text('これでいい'),
+                onPressed: () {
+                  final bool isCorrect =
+                      _hour == _time.hour && _minute == _time.minute;
+                  print(isCorrect);
+
+                  showDialog<_DialogAction>(
+                    context: context,
+                    builder: (BuildContext context) {
+                      return AlertDialog(
+                        content: Text(
+                          isCorrect ? 'せいかい！！' : 'おしい！',
+                        ),
+                        actions: <Widget>[
+                          FlatButton(
+                            child: Text(isCorrect ? 'つぎのもんだい' : 'もういちどこたえる'),
+                            onPressed: () {
+                              Navigator.pop(
+                                context,
+                                isCorrect
+                                    ? _DialogAction.next
+                                    : _DialogAction.retry,
+                              );
+                            },
+                          ),
+                        ],
+                      );
+                    },
+                  ).then<void>((_DialogAction value) {
+                    switch (value) {
+                      case _DialogAction.next:
+                        _refresh();
+                        break;
+                      case _DialogAction.retry:
+                        break;
+                    }
+                  });
+                },
+              ),
+            ],
           ),
         ],
       ),
@@ -204,7 +210,11 @@ class _MyPainter extends CustomPainter {
       final double y2 = center.dy + radius * sin(radians(i.toDouble()));
 
       canvas.drawLine(
-          Offset(x1, y1), Offset(x2, y2), Paint()..color = Colors.black);
+          Offset(x1, y1),
+          Offset(x2, y2),
+          Paint()
+            ..color = Colors.black
+            ..strokeWidth = (i % 30 == 0 ? 1.5 : 1));
     }
 
     const double fontSize = 20;
