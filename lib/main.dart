@@ -48,7 +48,7 @@ class _MyHomePageState extends State<MyHomePage>
   void _refresh() {
     setState(() {
       _time = TimeOfDay(
-        hour: _rand.nextInt(11),
+        hour: _rand.nextInt(11) + 1,
         minute: _rand.nextInt(59),
       );
     });
@@ -140,7 +140,6 @@ class _MyHomePageState extends State<MyHomePage>
                 onPressed: () {
                   final bool isCorrect =
                       _hour == _time.hour && _minute == _time.minute;
-                  print(isCorrect);
 
                   showDialog<_DialogAction>(
                     context: context,
