@@ -38,19 +38,41 @@ class _MyHomePageState extends State<MyHomePage>
   final List<int> _hours = List<int>.generate(12, (int i) => i + 1);
   int _hour = 1;
   int _minute = 1;
+  TabController _tabCon;
 
   @override
   void initState() {
     super.initState();
+    _tabCon = TabController(length: 2, vsync: this)
+      ..addListener(() {
+        if (_tabCon.indexIsChanging) {
+          _refresh();
+        }
+      });
     _refresh();
   }
 
   void _refresh() {
     setState(() {
-      _time = TimeOfDay(
-        hour: _rand.nextInt(11) + 1,
-        minute: _rand.nextInt(59),
-      );
+      switch (_tabCon.index) {
+        case 0:
+          _time = TimeOfDay(
+            hour: _rand.nextInt(11) + 1,
+            minute: _rand.nextInt(59),
+          );
+          break;
+        case 1:
+          TimeOfDay now = TimeOfDay.now();
+          int remaining = _rand.nextInt(29) + 1;
+          int newMinute = now.minute + remaining;
+          int newHour = now.hour;
+          if (newMinute > 59) {
+            newMinute -= 60;
+            newHour += 1;
+          }
+          _time = TimeOfDay(hour: newHour, minute: newMinute);
+          break;
+      }
     });
   }
 
@@ -59,6 +81,13 @@ class _MyHomePageState extends State<MyHomePage>
     return Scaffold(
       appBar: AppBar(
         title: Text(widget.title),
+        bottom: TabBar(
+          controller: _tabCon,
+          tabs: [
+            Tab(text: 'いまなんじ？'),
+            Tab(text: 'あとなんぷん？'),
+          ],
+        ),
       ),
       body: Column(
         children: <Widget>[
@@ -75,107 +104,162 @@ class _MyHomePageState extends State<MyHomePage>
               ),
             ),
           ),
-          Column(
-            children: <Widget>[
-              DropdownButtonHideUnderline(
-                child: Container(
-                  padding: const EdgeInsets.all(16.0),
-                  child: InputDecorator(
-                    decoration: const InputDecoration(
-                      labelText: 'なんじ？',
-                      contentPadding: EdgeInsets.zero,
+          Expanded(
+            child: TabBarView(
+              controller: _tabCon,
+              children: [
+                Column(
+                  children: <Widget>[
+                    DropdownButtonHideUnderline(
+                      child: Container(
+                        padding: const EdgeInsets.all(16.0),
+                        child: InputDecorator(
+                          decoration: const InputDecoration(
+                            labelText: 'なんじ？',
+                            contentPadding: EdgeInsets.zero,
+                          ),
+                          child: DropdownButton<int>(
+                            value: _hour,
+                            onChanged: (int newValue) {
+                              setState(() {
+                                _hour = newValue;
+                              });
+                            },
+                            items:
+                                _hours.map<DropdownMenuItem<int>>((int value) {
+                              return DropdownMenuItem<int>(
+                                value: value,
+                                child: Text('$valueじ'),
+                              );
+                            }).toList(),
+                          ),
+                        ),
+                      ),
                     ),
-                    child: DropdownButton<int>(
-                      value: _hour,
-                      onChanged: (int newValue) {
+                    Container(
+                        padding: const EdgeInsets.all(16.0),
+                        child: Column(
+                          children: <Widget>[
+                            Row(
+                              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                              children: <Widget>[
+                                Text(
+                                  'なんぷん？',
+                                  style: TextStyle(
+                                      color: Colors.grey[500], fontSize: 13),
+                                ),
+                                Text(
+                                  '$_minuteふん',
+                                  style: TextStyle(
+                                      color: Colors.black, fontSize: 13),
+                                ),
+                              ],
+                            ),
+                          ],
+                        )),
+                    Slider(
+                      value: _minute.toDouble(),
+                      min: 0,
+                      max: 59,
+                      divisions: 60,
+                      label: '$_minuteふん',
+                      onChanged: (double value) {
                         setState(() {
-                          _hour = newValue;
+                          _minute = value.toInt();
                         });
                       },
-                      items: _hours.map<DropdownMenuItem<int>>((int value) {
-                        return DropdownMenuItem<int>(
-                          value: value,
-                          child: Text('$valueじ'),
-                        );
-                      }).toList(),
                     ),
-                  ),
+                  ],
                 ),
-              ),
-              Container(
-                  padding: const EdgeInsets.all(16.0),
-                  child: Column(
-                    children: <Widget>[
-                      Row(
-                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                        children: <Widget>[
-                          Text(
-                            'なんぷん？',
-                            style: TextStyle(
-                                color: Colors.grey[500], fontSize: 13),
-                          ),
-                          Text(
-                            '$_minuteふん',
-                            style: TextStyle(color: Colors.black, fontSize: 13),
-                          ),
-                        ],
+                Column(
+                  children: <Widget>[
+                    Container(
+                        padding: const EdgeInsets.all(16.0),
+                        child: Column(
+                          children: <Widget>[
+                            Row(
+                              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                              children: <Widget>[
+                                Text(
+                                  'あとなんぷん？',
+                                  style: TextStyle(
+                                      color: Colors.grey[500], fontSize: 13),
+                                ),
+                                Text(
+                                  '$_minuteふん',
+                                  style: TextStyle(
+                                      color: Colors.black, fontSize: 13),
+                                ),
+                              ],
+                            ),
+                          ],
+                        )),
+                    Slider(
+                      value: _minute.toDouble(),
+                      min: 0,
+                      max: 59,
+                      divisions: 60,
+                      label: '$_minuteふん',
+                      onChanged: (double value) {
+                        setState(() {
+                          _minute = value.toInt();
+                        });
+                      },
+                    ),
+                  ],
+                ),
+              ],
+            ),
+          ),
+          const SizedBox(height: 8.0),
+          RaisedButton(
+            child: const Text('これでいい'),
+            onPressed: () {
+              bool isCorrect = false;
+              switch (_tabCon.index) {
+                case 0:
+                  isCorrect = _hour == _time.hour && _minute == _time.minute;
+                  break;
+                case 1:
+                  TimeOfDay now = TimeOfDay.now();
+                  isCorrect = (_time.hour * 60 + _time.minute) ==
+                      (now.hour * 60 + now.minute + _minute);
+                  break;
+              }
+              showDialog<_DialogAction>(
+                context: context,
+                builder: (BuildContext context) {
+                  return AlertDialog(
+                    content: Text(
+                      isCorrect ? 'せいかい！！' : 'おしい！',
+                    ),
+                    actions: <Widget>[
+                      FlatButton(
+                        child: Text(isCorrect ? 'つぎのもんだい' : 'もういちどこたえる'),
+                        onPressed: () {
+                          Navigator.pop(
+                            context,
+                            isCorrect
+                                ? _DialogAction.next
+                                : _DialogAction.retry,
+                          );
+                        },
                       ),
                     ],
-                  )),
-              Slider(
-                value: _minute.toDouble(),
-                min: 0,
-                max: 59,
-                divisions: 60,
-                label: '$_minuteふん',
-                onChanged: (double value) {
-                  setState(() {
-                    _minute = value.toInt();
-                  });
+                  );
                 },
-              ),
-              const SizedBox(height: 8.0),
-              RaisedButton(
-                child: const Text('これでいい'),
-                onPressed: () {
-                  final bool isCorrect =
-                      _hour == _time.hour && _minute == _time.minute;
-
-                  showDialog<_DialogAction>(
-                    context: context,
-                    builder: (BuildContext context) {
-                      return AlertDialog(
-                        content: Text(
-                          isCorrect ? 'せいかい！！' : 'おしい！',
-                        ),
-                        actions: <Widget>[
-                          FlatButton(
-                            child: Text(isCorrect ? 'つぎのもんだい' : 'もういちどこたえる'),
-                            onPressed: () {
-                              Navigator.pop(
-                                context,
-                                isCorrect
-                                    ? _DialogAction.next
-                                    : _DialogAction.retry,
-                              );
-                            },
-                          ),
-                        ],
-                      );
-                    },
-                  ).then<void>((_DialogAction value) {
-                    switch (value) {
-                      case _DialogAction.next:
-                        _refresh();
-                        break;
-                      case _DialogAction.retry:
-                        break;
-                    }
-                  });
-                },
-              ),
-            ],
+              ).then<void>((_DialogAction value) {
+                switch (value) {
+                  case _DialogAction.next:
+                    _refresh();
+                    break;
+                  case _DialogAction.retry:
+                    break;
+                }
+              });
+            },
           ),
+          const SizedBox(height: 8.0),
         ],
       ),
     );
