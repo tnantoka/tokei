@@ -174,26 +174,28 @@ class _MyHomePageState extends State<MyHomePage>
                 Column(
                   children: <Widget>[
                     Container(
-                        padding: const EdgeInsets.all(16.0),
-                        child: Column(
-                          children: <Widget>[
-                            Row(
-                              mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                              children: <Widget>[
-                                Text(
-                                  'あとなんぷん？',
-                                  style: TextStyle(
-                                      color: Colors.grey[500], fontSize: 13),
-                                ),
-                                Text(
-                                  '$_minuteふん',
-                                  style: TextStyle(
-                                      color: Colors.black, fontSize: 13),
-                                ),
-                              ],
-                            ),
-                          ],
-                        )),
+                      padding: const EdgeInsets.all(16.0),
+                      child: Column(
+                        children: <Widget>[
+                          Row(
+                            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                            children: <Widget>[
+                              Text(
+                                'あとなんぷん？',
+                                style: TextStyle(
+                                    color: Colors.grey[500], fontSize: 13),
+                              ),
+                              Text(
+                                '$_minuteふん',
+                                style: TextStyle(
+                                    color: Colors.black, fontSize: 13),
+                              ),
+                            ],
+                          ),
+                        ],
+                      ),
+                    ),
+                    const SizedBox(height: 20.0),
                     Slider(
                       value: _minute.toDouble(),
                       min: 0,
